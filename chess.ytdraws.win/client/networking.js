@@ -170,8 +170,8 @@ ws.addEventListener("message", function (data) {
             moveWasDrag = false;
 
             legalMoves = [];
-            if(teams[msg[2]][msg[3]] === selfId) curMoveCooldown = window.moveCooldown;
         }
+	if(teams[msg[2]][msg[3]] === selfId) curMoveCooldown = window.moveCooldown;
     }
 
     changed = true;
