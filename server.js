@@ -57,7 +57,7 @@ const getClearRandomSpace = () =>
   return [x, y]
 }
 
-const getLeaderBoard = () => Object.keys(teams).map( k =>
+const getLeaderBoard = () => Object.keys(teams).map(k =>
   {
     const plr = teams[k];
     // todo give the guys actual names
