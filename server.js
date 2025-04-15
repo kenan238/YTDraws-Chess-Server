@@ -140,7 +140,7 @@ function handlePacket(teamId, data)
   {
     console.log(teamId, 'died')
     // neutralize pieces
-    plyr.neutralizePieces(plyr);
+    plyr.neutralizePieces();
 
     setTimeout(() =>
     {
@@ -261,9 +261,9 @@ wss.on('connection', ws =>
       const [spx, spy] = getClearRandomSpace();
       updateCell(teamId, 6, spx, spy, true);
     },
-    neutralizePieces: (plyr) =>
+    neutralizePieces: () =>
     {
-      plyr.getPieces().forEach(p => 
+      teams[teamId].getPieces().forEach(p => 
         {
           let [piece, x, y] = p;
   
@@ -281,7 +281,7 @@ wss.on('connection', ws =>
   ws.on('close', () =>
   {
     console.log(teamId, "disconnected");
-    teams[teamId].neutralizePieces(teams[teamId]);
+    teams[teamId].neutralizePieces();
     delete teams[teamId];
   })
 
