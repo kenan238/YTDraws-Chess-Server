@@ -7,6 +7,7 @@ import { stdout } from 'process';
 
 const wss = new WebSocketServer({ port: 2388 })
 const teams = {};
+let playerCount = 0;
 
 const rnd = r => Math.floor(Math.random() * r)
 
@@ -24,6 +25,14 @@ const printBoard = () =>
     }
     stdout.write('\n')
   }
+}
+
+const sendChatMessage = (teamId, msg, ws) => 
+{
+  const bytes = [...msg].map(c => c.charCodeAt(0));
+  const send = ws.broadcast ?? ws.send;
+
+  send([47095, teamId, ...bytes]);
 }
 
 const updateCell = (team, piece, x, y, broadcast = false) =>
@@ -151,10 +160,9 @@ function handlePacket(teamId, data)
   {
     // chat message
     const msg = decodeText(data, 2).toString();
-    const bytes = [...msg].map(c => c.charCodeAt(0))
     console.log(teamId, msg)
 
-    wss.broadcast([ 47095, teamId, ...bytes ])
+    sendChatMessage(teamId, msg, wss);
   }
   else if (data.length === 8)
   {
@@ -195,7 +203,7 @@ function handlePacket(teamId, data)
     // useless byte and end because serum is funky like that
     wss.broadcast([selectedX, selectedY, newX, newY, 300])
 
-    if (endCell.piece !== 0 && endCell.piece !== 6)
+    if (endCell.piece !== 0 && endCell.piece !== 6 && endCell.team === 0)
       updateCell(startCell.team, endCell.piece, selectedX, selectedY, true)
 
     if (endCell.piece === 6 && endCell.team !== teamId)
@@ -278,9 +286,14 @@ wss.on('connection', ws =>
     }
   };
 
+  playerCount ++;
+
   ws.on('close', () =>
   {
+    playerCount--;
     console.log(teamId, "disconnected");
+    if (!teams[teamId])
+      return;
     teams[teamId].neutralizePieces();
     delete teams[teamId];
   })
@@ -289,6 +302,8 @@ wss.on('connection', ws =>
 
   ws.send([teamId, ...generateBoardBuffer()]);
   teams[teamId].spawnKing();
+
+  sendChatMessage(65534, `Welcome to an instance of the custom Chess YTDraws server! There ${playerCount === 1 ? 'is' : 'are'} ${playerCount} ${playerCount === 1 ? 'team' : 'teams'}.`, ws)
 });
 
 wss.on('listening', () =>

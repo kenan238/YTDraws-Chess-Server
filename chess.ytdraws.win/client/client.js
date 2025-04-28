@@ -1,4 +1,4 @@
-const HOST = "ws://localhost:2388";//location.origin.replace(/^http/, 'ws');
+const HOST = "??";//location.origin.replace(/^http/, 'ws');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
